@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philosopher.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yolan <yolan@student.42.fr>                +#+  +:+       +#+        */
+/*   By: ygorget <ygorget@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 19:41:54 by yolan             #+#    #+#             */
-/*   Updated: 2025/01/13 16:52:15 by yolan            ###   ########.fr       */
+/*   Updated: 2025/01/31 15:29:41 by ygorget          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,20 +20,23 @@
 #include <unistd.h>
 #include <string.h>
 
+typedef struct s_thread
+{
+	int	philo;
+	int old_eating;
+}	t_thread;
+
 typedef struct data_s
 {
-    int *fork;
-    int philo;
+    int nbr_philo;
     float eat;
     float sleep;
     float died;
-    float mili_s;
-    int i;
-    int *old_eating;
     pthread_t *philos;
+    pthread_mutex_t *mutex_fork;
+	t_thread	*thread_data;
     struct timeval start;
     struct timeval act;
-    pthread_mutex_t *mutex_fork;
 } data_t;
 
 #endif
