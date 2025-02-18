@@ -6,7 +6,7 @@
 /*   By: yolan <yolan@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/10 11:25:38 by ygorget           #+#    #+#             */
-/*   Updated: 2025/02/18 22:41:09 by yolan            ###   ########.fr       */
+/*   Updated: 2025/02/18 23:29:01 by yolan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ int	meal(t_data *data)
 	{
 		while (i < data->nbr_philo)
 		{
-			if (data->max_meal[i] != 0)
+			if (data->max_meal[i] > 0)
 				break ;
 			i++;
 		}
@@ -142,7 +142,7 @@ int	main(int argc, char **argv)
 
 	if (argc < 5 || argc > 6)
 		return (0);
-	if (init_data(&data, argv) == 0);
+	if (init_data(&data, argv) == 0)
 	{
 		thread = malloc(sizeof(t_thread) * data.nbr_philo);
 		start_thread(data, thread);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   action.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ygorget <ygorget@student.42.fr>            +#+  +:+       +#+        */
+/*   By: yolan <yolan@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 14:37:41 by ygorget           #+#    #+#             */
-/*   Updated: 2025/02/18 17:04:18 by ygorget          ###   ########.fr       */
+/*   Updated: 2025/02/18 23:29:11 by yolan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,10 +78,19 @@ int	eat(t_thread *thread, int l_fork, int r_fork)
 
 int		check_meal(t_thread *thread)
 {
+	int	i;
+	
 	pthread_mutex_lock(&thread->data->prot_meal);
 	if (thread->meal == true)
 	{
-		if (thread->data->max_meal[thread->philo - 1] == 0)
+		i = 0;
+		while (i < thread->data->nbr_philo)
+		{
+			if (thread->data->max_meal[i] > 0)
+				break ;
+			i++;
+		}
+		if (i == thread->data->nbr_philo)
 		{
 			pthread_mutex_unlock(&thread->data->prot_meal);
 			return (-1);
