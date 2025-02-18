@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ygorget <ygorget@student.42.fr>            +#+  +:+       +#+        */
+/*   By: yolan <yolan@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/10 11:25:49 by ygorget           #+#    #+#             */
-/*   Updated: 2025/02/18 16:44:37 by ygorget          ###   ########.fr       */
+/*   Updated: 2025/02/18 22:44:40 by yolan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ typedef struct s_thread
 }	t_thread;
 
 int		ft_atoi(char *nb);
-void	init_data(t_data *data, char **tab);
+int		init_data(t_data *data, char **tab);
 
 int		unlock_one_fork(t_thread *thread, int fork);
 int		unlock_two_fork(t_thread *thread, int l_fork, int r_fork);

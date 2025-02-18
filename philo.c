@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ygorget <ygorget@student.42.fr>            +#+  +:+       +#+        */
+/*   By: yolan <yolan@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/10 11:25:38 by ygorget           #+#    #+#             */
-/*   Updated: 2025/02/18 17:05:13 by ygorget          ###   ########.fr       */
+/*   Updated: 2025/02/18 22:41:09 by yolan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,9 +142,11 @@ int	main(int argc, char **argv)
 
 	if (argc < 5 || argc > 6)
 		return (0);
-	init_data(&data, argv);
-	thread = malloc(sizeof(t_thread) * data.nbr_philo);
-	start_thread(data, thread);
-	ft_free(&data, thread);
+	if (init_data(&data, argv) == 0);
+	{
+		thread = malloc(sizeof(t_thread) * data.nbr_philo);
+		start_thread(data, thread);
+		ft_free(&data, thread);
+	}
 	return (0);
 }
