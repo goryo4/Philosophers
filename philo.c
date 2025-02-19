@@ -6,7 +6,7 @@
 /*   By: yolan <yolan@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/10 11:25:38 by ygorget           #+#    #+#             */
-/*   Updated: 2025/02/18 23:29:01 by yolan            ###   ########.fr       */
+/*   Updated: 2025/02/19 00:29:33 by yolan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ void	*check_death(void *arg)
 	{
 		if (meal(data) == -1)
 			break ;
-		usleep(10);
+		//usleep(10);
 		i = -1;
 		while (++i < data->nbr_philo)
 		{
