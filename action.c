@@ -3,26 +3,35 @@
 /*                                                        :::      ::::::::   */
 /*   action.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yolan <yolan@student.42.fr>                +#+  +:+       +#+        */
+/*   By: ygorget <ygorget@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 14:37:41 by ygorget           #+#    #+#             */
-/*   Updated: 2025/02/19 00:30:50 by yolan            ###   ########.fr       */
+/*   Updated: 2025/02/19 18:05:01 by ygorget          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	unlock_one_fork(t_thread *thread, int fork)
+int	get_time(void)
 {
-	pthread_mutex_unlock(&thread->data->mutex_fork[fork]);
-	return (-1);
+	struct timeval	act;
+
+	gettimeofday(&act, NULL);
+	return (act.tv_sec * 1000 + (act.tv_usec) / 1000);
 }
 
-int	unlock_two_fork(t_thread *thread, int fork1, int fork2)
+int	ft_usleep(size_t milliseconds, t_data *data)
 {
-	pthread_mutex_unlock(&thread->data->mutex_fork[fork1]);
-	pthread_mutex_unlock(&thread->data->mutex_fork[fork2]);
-	return (-1);
+	size_t	start;
+
+	start = get_time();
+	while ((get_time() - start) < milliseconds / 1000)
+	{
+		if (philo_death(data) == -1)
+			return (-1);
+		usleep(1000);
+	}
+	return (0);
 }
 
 int	take_fork(t_thread *thread, int l_fork, int r_fork)
@@ -30,60 +39,72 @@ int	take_fork(t_thread *thread, int l_fork, int r_fork)
 	if (thread->philo % 2 != 0)
 	{
 		pthread_mutex_lock(&thread->data->mutex_fork[r_fork]);
-		if (death(thread->data) == -1)
+		if (philo_death(thread->data) == -1)
 			return (unlock_one_fork(thread, r_fork));
 		print_action(thread->data, FORK, thread->philo);
 		pthread_mutex_lock(&thread->data->mutex_fork[l_fork]);
-		if (death(thread->data) == -1)
+		if (philo_death(thread->data) == -1)
 			return (unlock_two_fork(thread, r_fork, l_fork));
 		print_action(thread->data, FORK, thread->philo);
 	}
-	else if (thread->philo % 2 == 0)
+	else
 	{
 		pthread_mutex_lock(&thread->data->mutex_fork[l_fork]);
-		if (death(thread->data) == -1)
+		if (philo_death(thread->data) == -1)
 			return (unlock_one_fork(thread, l_fork));
 		print_action(thread->data, FORK, thread->philo);
 		pthread_mutex_lock(&thread->data->mutex_fork[r_fork]);
-		if (death(thread->data) == -1)
+		if (philo_death(thread->data) == -1)
 			return (unlock_two_fork(thread, l_fork, r_fork));
 		print_action(thread->data, FORK, thread->philo);
 	}
 	return (0);
 }
 
+void	unlock_fork(t_thread *thread, int l_fork, int r_fork)
+{
+	if (thread->philo % 2 != 0)
+		unlock_two_fork(thread, r_fork, l_fork);
+	else
+		unlock_two_fork(thread, l_fork, r_fork);
+}
+
 int	eat(t_thread *thread, int l_fork, int r_fork)
 {
 	if (take_fork(thread, l_fork, r_fork) == -1)
 		return (-1);
-	if (death(thread->data) == -1)
+	if (philo_death(thread->data) == -1)
 	{
 		if (thread->philo % 2 != 0)
 			unlock_two_fork(thread, r_fork, l_fork);
-		if (thread->philo % 2 == 0)
+		else
 			unlock_two_fork(thread, l_fork, r_fork);
 		return (-1);
 	}
-	print_action(thread->data, EAT, thread->philo);
 	pthread_mutex_lock(&thread->data->old[thread->philo - 1]);
 	thread->data->old_eating[thread->philo - 1] = times(thread->data);
 	pthread_mutex_unlock(&thread->data->old[thread->philo - 1]);
-	usleep(thread->data->eat);
-	if (thread->philo % 2 != 0)
-		unlock_two_fork(thread, r_fork, l_fork);
-	if (thread->philo % 2 == 0)
-		unlock_two_fork(thread, l_fork, r_fork);
+	print_action(thread->data, EAT, thread->philo);
+	if (ft_usleep(thread->data->eat, thread->data) == -1)
+	{
+		unlock_fork(thread, l_fork, r_fork);
+		return (-1);
+	}
+	unlock_fork(thread, l_fork, r_fork);
+	if (check_meal(thread) == -1)
+		return (-1);
 	return (1);
 }
 
-int		check_meal(t_thread *thread)
+int	check_meal(t_thread *thread)
 {
 	int	i;
-	
+
 	pthread_mutex_lock(&thread->data->prot_meal);
 	if (thread->meal == true)
 	{
 		i = 0;
+		thread->data->max_meal[thread->philo - 1]--;
 		while (i < thread->data->nbr_philo)
 		{
 			if (thread->data->max_meal[i] > 0)
@@ -95,16 +116,19 @@ int		check_meal(t_thread *thread)
 			pthread_mutex_unlock(&thread->data->prot_meal);
 			return (-1);
 		}
-		thread->data->max_meal[thread->philo - 1]--;
 	}
 	pthread_mutex_unlock(&thread->data->prot_meal);
 	return (0);
 }
 
-void	*one_philo(t_thread *thread)
+int	wait_odd(t_thread *thread)
 {
-	print_action(thread->data, FORK, thread->philo);
-	return (NULL);
+	if (thread->philo % 2 != 0)
+	{
+		if (ft_usleep(thread->data->eat, thread->data) == -1)
+			return (-1);
+	}
+	return (0);
 }
 
 void	*action(void *arg)
@@ -118,18 +142,18 @@ void	*action(void *arg)
 	r_fork = thread->philo % thread->max_philo;
 	if (thread->max_philo == 1)
 		return (one_philo(thread));
-	while (death(thread->data) == 0)
+	if (wait_odd(thread) == -1)
+		return (NULL);
+	while (philo_death(thread->data) == 0)
 	{
 		if (eat(thread, l_fork, r_fork) == -1)
 			break ;
-		if (check_meal(thread) == -1)
-			break ;
-		if (death(thread->data) != -1)
-		{
-			print_action(thread->data, SLEEP, thread->philo);
-			usleep(thread->data->sleep);
-		}
-		if (death(thread->data) != -1)
+		if (philo_death(thread->data) == -1)
+			return (NULL);
+		print_action(thread->data, SLEEP, thread->philo);
+		if (ft_usleep(thread->data->sleep, thread->data) == -1)
+			return (NULL);
+		if (philo_death(thread->data) != -1)
 			print_action(thread->data, THINK, thread->philo);
 	}
 	return (NULL);
