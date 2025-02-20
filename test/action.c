@@ -6,7 +6,7 @@
 /*   By: ygorget <ygorget@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 14:37:41 by ygorget           #+#    #+#             */
-/*   Updated: 2025/02/20 13:29:00 by ygorget          ###   ########.fr       */
+/*   Updated: 2025/02/20 12:08:58 by ygorget          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ int	ft_usleep(size_t milliseconds, t_data *data)
 	size_t	start;
 
 	start = get_time();
-	while ((get_time() - start) * 1000 < milliseconds)
+	while ((get_time() - start) < milliseconds / 1000)
 	{
 		if (philo_death(data) == -1)
 			return (-1);
@@ -36,28 +36,14 @@ int	ft_usleep(size_t milliseconds, t_data *data)
 
 int	take_fork(t_thread *thread, int l_fork, int r_fork)
 {
-	if (thread->philo % 2 == 0)
-	{
-		pthread_mutex_lock(&thread->data->mutex_fork[l_fork]);
-		if (philo_death(thread->data) == -1)
-			return (unlock_one_fork(thread, l_fork));
-		print_action(thread->data, FORK, thread->philo);
-		pthread_mutex_lock(&thread->data->mutex_fork[r_fork]);
-		if (philo_death(thread->data) == -1)
-			return (unlock_two_fork(thread, l_fork, r_fork));
-		print_action(thread->data, FORK, thread->philo);
-	}
-	else
-	{
-		pthread_mutex_lock(&thread->data->mutex_fork[r_fork]);
-		if (philo_death(thread->data) == -1)
-			return (unlock_one_fork(thread, r_fork));
-		print_action(thread->data, FORK, thread->philo);
-		pthread_mutex_lock(&thread->data->mutex_fork[l_fork]);
-		if (philo_death(thread->data) == -1)
-			return (unlock_two_fork(thread, r_fork, l_fork));
-		print_action(thread->data, FORK, thread->philo);
-	}
+	pthread_mutex_lock(&thread->mutex_fork[0]);
+	if (philo_death(thread->data) == -1)
+		return (unlock_one_fork(thread, l_fork));
+	print_action(thread->data, FORK, thread->philo);
+	pthread_mutex_lock(&thread->data->mutex_fork[1]);
+	if (philo_death(thread->data) == -1)
+		return (unlock_two_fork(thread, l_fork, r_fork));
+	print_action(thread->data, FORK, thread->philo);
 	return (0);
 }
 

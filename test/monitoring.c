@@ -6,7 +6,7 @@
 /*   By: ygorget <ygorget@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 13:38:26 by ygorget           #+#    #+#             */
-/*   Updated: 2025/02/20 12:26:06 by ygorget          ###   ########.fr       */
+/*   Updated: 2025/02/20 12:02:47 by ygorget          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,6 @@ void	*check_death(void *arg)
 		if (meal(data) == -1)
 			break ;
 		i = -1;
-		usleep (10);
 		while (++i < data->nbr_philo)
 		{
 			if (!death(data, i))
